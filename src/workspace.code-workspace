@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../../../Documents/PlatformIO/Projects/esp32 cam test"
+		},
+		{
+			"name": "esp32 video transmittion",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}
