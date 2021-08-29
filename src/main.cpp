@@ -35,7 +35,7 @@ void setup()
   camera_config_t config = setup_camera_config(); // get the camera config
 
   // Camera init
-  Serial.println("hello world");
+  
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK)
   {

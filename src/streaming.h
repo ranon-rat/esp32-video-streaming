@@ -1,27 +1,25 @@
 #include <WiFi.h>
 #include "esp_camera.h"
-//include "esp_http_server.h"
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
+#include "esp_http_server.h"
+//#include <AsyncTCP.h>
+//#include <ESPAsyncWebServer.h>
 //
 
-// macros
+//macros
 #define PART_BOUNDARY "123456789000000000000987654321"
 #define STREAM_CONTENT_TYPE "multipart/x-mixed-replace;boundary=" PART_BOUNDARY
 #define STREAM_BOUNDARY "\r\n--" PART_BOUNDARY "\r\n"
-#define STREAM_PART "Content-Type: image/jpeg"//\r\nContent-Length: %u\r\n\r\n"
+#define STREAM_PART "Content-Type: image/jpeg" //\r\nContent-Length: %u\r\n\r\n"
+httpd_handle_t stream_httpd = NULL;
 
-AsyncWebServer server(80);
-static esp_err_t streamHandler(AsyncWebServerRequest *req)
+static esp_err_t streamHandler(httpd_req_t *req)
 {
     camera_fb_t *fb = NULL;
     esp_err_t res = ESP_OK;
     size_t jpg_buf_len = 0;
     uint8_t *jpg_buf = NULL;
     char *part_buf[64];
-    req->send(200,STREAM_PART,(const char*)jpg_buf);
-    req->send(200,STREAM_BOUNDARY);
-    res = httpd_resp_set_type(req, STREAM_CONTENT_TYPE);
+
     if (res != ESP_OK)
     {
         return res;
@@ -97,19 +95,17 @@ static esp_err_t indexHandler(httpd_req_t *req)
 void startCameraServer()
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send_P(200, "text/html", show_camera_html); });
     config.server_port = 80;
     httpd_uri_t home_index = {
         .uri = "/",
         .method = HTTP_GET,
-        .handler = indexHandler,
+        .handler = index_handler,
         .user_ctx = NULL};
 
     httpd_uri_t img_trans = {
         .uri = "/img",
         .method = HTTP_GET,
-        .handler = streamHandler,
+        .handler = stream_handler,
         .user_ctx = NULL};
 
     //Serial.printf("Starting web server on port: '%d'\n", config.server_port);
