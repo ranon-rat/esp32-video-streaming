@@ -6,84 +6,74 @@
 //
 
 //macros
+
 #define PART_BOUNDARY "123456789000000000000987654321"
-#define STREAM_CONTENT_TYPE "multipart/x-mixed-replace;boundary=" PART_BOUNDARY
-#define STREAM_BOUNDARY "\r\n--" PART_BOUNDARY "\r\n"
-#define STREAM_PART "Content-Type: image/jpeg" //\r\nContent-Length: %u\r\n\r\n"
+#define STREAM_CONTENT_TYPE  "multipart/x-mixed-replace;boundary=" PART_BOUNDARY
+#define STREAM_BOUNDARY  "\r\n--" PART_BOUNDARY "\r\n"
+#define STREAM_PART "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"
 httpd_handle_t stream_httpd = NULL;
 
 static esp_err_t streamHandler(httpd_req_t *req)
 {
-    camera_fb_t *fb = NULL;
-    esp_err_t res = ESP_OK;
-    size_t jpg_buf_len = 0;
-    uint8_t *jpg_buf = NULL;
-    char *part_buf[64];
+  camera_fb_t *fb = NULL;
+  esp_err_t res = ESP_OK;
+  size_t jpg_buf_len = 0;
+  uint8_t *jpg_buf = NULL;
+  char *part_buf[64];
 
+  res = httpd_resp_set_type(req, STREAM_CONTENT_TYPE);
+  if (res != ESP_OK)
+  {
+    return res;
+  }
+
+  while (true)
+  {
+    fb = esp_camera_fb_get();
+    if (!fb)
+    {
+      Serial.println("Camera capture failed");
+      res = ESP_FAIL;
+    }
+    else
+    {
+      
+
+        jpg_buf_len = fb->len;
+        jpg_buf = fb->buf;
+      
+    }
+    if (res == ESP_OK)
+    {
+      size_t hlen = snprintf((char *)part_buf, 64, STREAM_PART, jpg_buf_len);
+      res = httpd_resp_send_chunk(req, (const char *)part_buf, hlen);
+    }
+    if (res == ESP_OK)
+    {
+      res = httpd_resp_send_chunk(req, (const char *)jpg_buf, jpg_buf_len);
+    }
+    if (res == ESP_OK)
+    {
+      res = httpd_resp_send_chunk(req, STREAM_BOUNDARY, strlen(STREAM_BOUNDARY));
+    }
+    if (fb)
+    {
+      esp_camera_fb_return(fb);
+      fb = NULL;
+      jpg_buf = NULL;
+    }
+    else if (jpg_buf)
+    {
+      free(jpg_buf);
+      jpg_buf = NULL;
+    }
     if (res != ESP_OK)
     {
-        return res;
+      break;
     }
-
-    while (true)
-    {
-        // get the camera image
-        fb = esp_camera_fb_get();
-
-        if (!fb)
-        {
-            Serial.println("Camera capture failed");
-            res = ESP_FAIL;
-        }
-        else
-        {
-            jpg_buf_len = fb->len;
-            jpg_buf = fb->buf;
-        }
-        // send  the packages
-
-        if (res == ESP_OK)
-        {
-            //define the content type
-            //"Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"
-
-            size_t hlen = snprintf((char *)part_buf, 64, STREAM_PART, jpg_buf_len);
-            res = httpd_resp_send_chunk(req, (const char *)part_buf, hlen);
-        }
-        if (res == ESP_OK)
-        {
-            // send the file
-            //0x13fas1237751ffff
-            res = httpd_resp_send_chunk(req, (const char *)jpg_buf, jpg_buf_len);
-        }
-        if (res == ESP_OK)
-        {
-            //then send this for reload the file
-            //and still sending packages
-            //"Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"
-            res = httpd_resp_send_chunk(req, STREAM_BOUNDARY, strlen(STREAM_BOUNDARY));
-        }
-        // check that everything is okay
-        if (fb)
-        {
-            esp_camera_fb_return(fb);
-            fb = NULL;
-            jpg_buf = NULL;
-        }
-        else if (jpg_buf)
-        {
-            free(jpg_buf);
-            jpg_buf = NULL;
-        }
-        // this break the while loop
-        if (res != ESP_OK)
-        {
-            break;
-        }
-        // this is for check the size of the file
-        Serial.printf("MJPG: %uB\n", (uint32_t)(jpg_buf_len));
-    }
-    return res;
+    Serial.printf("MJPG: %uB\n", (uint32_t)(jpg_buf_len));
+  }
+  return res;
 }
 static esp_err_t indexHandler(httpd_req_t *req)
 {

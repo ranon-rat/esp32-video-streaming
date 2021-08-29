@@ -18,11 +18,11 @@
 //#define CAMERA_MODEL_WROVER_KIT
 
 //config pins and network
-#include "network_config.h"
-#include "camera_pins.h"
+#include "network_config.hpp"
+#include "camera_pins.hpp"
 // the files and streaming
-#include "html_files.h"
-#include "streaming.h"
+#include "html_files.hpp"
+#include "streaming.hpp"
 
 
 void setup()
