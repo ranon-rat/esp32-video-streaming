@@ -1,3 +1,4 @@
+<!--xxd -i show_camera.html > html_files.hpp-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +7,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>show camera esp32</title>
 </head>
-<body>
-    <img src="/img">
+<style>
+#title{
+    text-align: center;
+    font-size: 40px;
+
+}
+#camera-stream{
+    border-radius: 5px;
+    border-width: 10px;
+    border-style: solid;
+    max-height: 70vh;
+}
+
+body{
     
+    font-family: 'Courier New', Courier, monospace;
+    color:#0afdd8;
+    background-color:#1d1d1d;
+}
+</style>
+<body>
+    <h1 align="center" id="title">Im watching you</h1>
+    <p align="center"  >
+    <img id="camera-stream" src="/img">
+    </p>
 </body>
 </html>
