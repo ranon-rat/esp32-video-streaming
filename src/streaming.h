@@ -99,13 +99,13 @@ void startCameraServer()
     httpd_uri_t home_index = {
         .uri = "/",
         .method = HTTP_GET,
-        .handler = index_handler,
+        .handler = indexHandler,
         .user_ctx = NULL};
 
     httpd_uri_t img_trans = {
         .uri = "/img",
         .method = HTTP_GET,
-        .handler = stream_handler,
+        .handler = streamHandler,
         .user_ctx = NULL};
 
     //Serial.printf("Starting web server on port: '%d'\n", config.server_port);
