@@ -79,7 +79,7 @@
 #error "Camera model not selected"
 #endif
 
-camera_config_t setup_config()
+camera_config_t setup_camera_config()
 {
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -103,7 +103,7 @@ camera_config_t setup_config()
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
 
-  config.frame_size = FRAMESIZE_SVGA;
+  config.frame_size = FRAMESIZE_SVGA;//800x600
   config.jpeg_quality = 12;
   config.fb_count = 2;
 
