@@ -1,4 +1,4 @@
-# esp32-video-transmittion
+# esp32-video-streaming
 
 
 its a simple camera system that im trying to make for fun
