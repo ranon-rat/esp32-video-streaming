@@ -4,7 +4,7 @@
 
 #include "esp_camera.h"
 #include "esp_timer.h"
-
+#include "ESPmDNS.h"
 // idk wtf this does
 #include "fb_gfx.h"
 #include "soc/soc.h"          //disable brownout problems
@@ -49,6 +49,11 @@ void setup()
     delay(500);
     Serial.print(".");
   }
+  if(!MDNS.begin("cameralol")){
+    Serial.println("error starting mdns");
+  }
+
+  
   Serial.printf("\nWiFi connected\n\nCamera Stream Ready! Go to: http://%s", WiFi.localIP().toString().c_str());
 
   // Start streaming web server
